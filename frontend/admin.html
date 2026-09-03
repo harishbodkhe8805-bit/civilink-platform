@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Civilink</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .admin-nav-pills .nav-link {
+      color: #475569;
+      font-weight: 500;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      text-align: left;
+      transition: all 0.2s;
+    }
+    .admin-nav-pills .nav-link:hover {
+      background-color: #f1f5f9;
+      color: #1e293b;
+    }
+    .admin-nav-pills .nav-link.active {
+      background-color: #7c3aed;
+      color: white;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body class="bg-light">
+
+  <!-- Security Check Before Body Render -->
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    // Strict Guard: Immediately block non-admins
+    if (!checkAuth(['ADMIN'])) {
+      // Redirect handled in checkAuth
+    }
+  </script>
+
+  <!-- Admin Top Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm" style="background-color: #0f172a !important;">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand d-flex align-items-center gap-2 text-white" href="admin.html">
+        <span class="badge bg-danger p-2 rounded-3"><i class="bi bi-shield-lock-fill fs-5"></i></span>
+        <div>
+          <span class="fw-bold">Civilink</span>
+          <span class="badge bg-danger-subtle text-danger ms-2 small">Admin Console</span>
+        </div>
+      </a>
+
+      <div class="d-flex align-items-center gap-3">
+        <a href="index.html" class="btn btn-sm btn-outline-light d-flex align-items-center gap-1">
+          <i class="bi bi-box-arrow-up-right"></i> View Public Site
+        </a>
+        
+        <div class="dropdown">
+          <button class="btn btn-secondary btn-sm dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
+            <i class="bi bi-person-fill-gear text-warning"></i>
+            <span id="adminNameDisplay" class="fw-semibold">Admin</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+            <li class="dropdown-header">Master Administrator</li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="javascript:void(0)" onclick="logout()"><i class="bi bi-box-arrow-right me-2"></i>Sign Out</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Admin Dashboard Container -->
+  <div class="container-fluid px-4 py-4">
+    <div class="row g-4">
+      
+      <!-- Sidebar Navigation -->
+      <div class="col-lg-3 col-xl-2">
+        <div class="custom-card p-3 sticky-top" style="top: 80px;">
+          <div class="text-muted small fw-bold text-uppercase mb-2 px-2">Management</div>
+          <div class="nav flex-column admin-nav-pills gap-1" id="adminTabs" role="tablist">
+            <button class="nav-link active d-flex align-items-center gap-2" id="tab-overview-btn" data-bs-toggle="pill" data-bs-target="#tab-overview" type="button" role="tab">
+              <i class="bi bi-speedometer2"></i> System Overview
+            </button>
+            <button class="nav-link d-flex align-items-center gap-2" id="tab-users-btn" data-bs-toggle="pill" data-bs-target="#tab-users" type="button" role="tab" onclick="loadAdminUsers()">
+              <i class="bi bi-people-fill"></i> User Management
+            </button>
+            <button class="nav-link d-flex align-items-center gap-2" id="tab-moderation-btn" data-bs-toggle="pill" data-bs-target="#tab-moderation" type="button" role="tab" onclick="loadModerationRequests()">
+              <i class="bi bi-shield-check"></i> Moderation Queue
+            </button>
+            <button class="nav-link d-flex align-items-center gap-2" id="tab-activities-btn" data-bs-toggle="pill" data-bs-target="#tab-activities" type="button" role="tab" onclick="loadAdminActivities()">
+              <i class="bi bi-calendar2-range"></i> Activity Control
+            </button>
+          </div>
+
+          <div class="border-top mt-4 pt-3 px-2">
+            <div class="d-flex align-items-center gap-2 text-success small fw-semibold">
+              <span class="spinner-grow spinner-grow-sm text-success" style="width: 8px; height: 8px;"></span>
+              Master Security Active
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Tab Content Area -->
+      <div class="col-lg-9 col-xl-10">
+        <div class="tab-content" id="adminTabsContent">
+          
+          <!-- TAB 1: SYSTEM OVERVIEW -->
+          <div class="tab-pane fade show active" id="tab-overview" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <div>
+                <h3 class="fw-bold mb-1">System Overview & Analytics</h3>
+                <p class="text-muted small mb-0">Live snapshot of registered entities, events, and pending community requests.</p>
+              </div>
+              <button class="btn btn-sm btn-outline-primary" onclick="loadAdminStats()">
+                <i class="bi bi-arrow-clockwise me-1"></i> Refresh Data
+              </button>
+            </div>
+
+            <!-- Stats Metric Cards -->
+            <div class="row g-3 mb-4" id="statsCardsRow">
+              <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                  <div class="stat-icon bg-primary-subtle text-primary"><i class="bi bi-people-fill"></i></div>
+                  <div>
+                    <h3 class="fw-bold mb-0" id="metricTotalUsers">0</h3>
+                    <div class="text-muted small">Total Users</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                  <div class="stat-icon bg-success-subtle text-success"><i class="bi bi-heart-fill"></i></div>
+                  <div>
+                    <h3 class="fw-bold mb-0" id="metricNGOs">0</h3>
+                    <div class="text-muted small">Registered NGOs</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                  <div class="stat-icon bg-info-subtle text-info"><i class="bi bi-building"></i></div>
+                  <div>
+                    <h3 class="fw-bold mb-0" id="metricOrgs">0</h3>
+                    <div class="text-muted small">Organizations</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                  <div class="stat-icon bg-danger-subtle text-danger"><i class="bi bi-hourglass-split"></i></div>
+                  <div>
+                    <h3 class="fw-bold mb-0" id="metricPendingReqs">0</h3>
+                    <div class="text-muted small">Pending Requests</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Secondary Metrics -->
+            <div class="row g-3 mb-4">
+              <div class="col-md-4">
+                <div class="custom-card p-4 h-100">
+                  <h6 class="fw-bold text-muted mb-3"><i class="bi bi-pie-chart me-2"></i>User Breakdown</h6>
+                  <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span>Individual Volunteers</span>
+                    <strong id="metricIndUsers">0</strong>
+                  </div>
+                  <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span>NGOs & Foundations</span>
+                    <strong id="metricNGOUsers">0</strong>
+                  </div>
+                  <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span>Corporate Orgs</span>
+                    <strong id="metricOrgUsers">0</strong>
+                  </div>
+                  <div class="d-flex justify-content-between py-2">
+                    <span>Platform Admins</span>
+                    <strong id="metricAdminUsers">0</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="custom-card p-4 h-100">
+                  <h6 class="fw-bold text-muted mb-3"><i class="bi bi-calendar2-check me-2"></i>Activity Health</h6>
+                  <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span>Total Initiatives</span>
+                    <strong id="metricTotalActs">0</strong>
+                  </div>
+                  <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span>Upcoming Events</span>
+                    <strong id="metricUpcomingActs">0</strong>
+                  </div>
+                  <div class="d-flex justify-content-between py-2">
+                    <span>Volunteers Registered</span>
+                    <strong id="metricVolunteersJoined">0</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="custom-card p-4 h-100">
+                  <h6 class="fw-bold text-muted mb-3"><i class="bi bi-check2-all me-2"></i>Moderation Status</h6>
+                  <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span>Pending Verification</span>
+                    <strong class="text-warning" id="metricModPending">0</strong>
+                  </div>
+                  <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span>Approved & Live</span>
+                    <strong class="text-success" id="metricModApproved">0</strong>
+                  </div>
+                  <div class="d-flex justify-content-between py-2">
+                    <span>Rejected / Flagged</span>
+                    <strong class="text-danger" id="metricModRejected">0</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Action Links -->
+            <div class="custom-card p-4">
+              <h5 class="fw-bold mb-3">Administrator Quick Actions</h5>
+              <div class="d-flex gap-3 flex-wrap">
+                <button class="btn btn-primary" onclick="document.getElementById('tab-users-btn').click()">
+                  <i class="bi bi-people me-1"></i> Manage User Accounts
+                </button>
+                <button class="btn btn-danger" onclick="document.getElementById('tab-moderation-btn').click()">
+                  <i class="bi bi-check-circle me-1"></i> Review Pending Requests
+                </button>
+                <button class="btn btn-outline-secondary" onclick="document.getElementById('tab-activities-btn').click()">
+                  <i class="bi bi-calendar-event me-1"></i> Oversee Activities
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: USER MANAGEMENT -->
+          <div class="tab-pane fade" id="tab-users" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <div>
+                <h3 class="fw-bold mb-1">User & Role Management</h3>
+                <p class="text-muted small mb-0">Search, monitor, suspend, or manage roles for all registered accounts.</p>
+              </div>
+            </div>
+
+            <!-- Filter Controls -->
+            <div class="custom-card p-3 mb-4">
+              <div class="row g-3 align-items-center">
+                <div class="col-md-5">
+                  <input type="text" class="form-control" id="adminUserSearch" placeholder="Search by name, email, or org...">
+                </div>
+                <div class="col-md-3">
+                  <select class="form-select" id="adminRoleFilter">
+                    <option value="ALL">All Roles</option>
+                    <option value="USER">Volunteers (USER)</option>
+                    <option value="NGO">NGOs</option>
+                    <option value="ORG">Organizations</option>
+                    <option value="ADMIN">Admins</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <select class="form-select" id="adminStatusFilter">
+                    <option value="ALL">All Statuses</option>
+                    <option value="ACTIVE">ACTIVE</option>
+                    <option value="BLOCKED">BLOCKED</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <button class="btn btn-outline-secondary w-100" onclick="loadAdminUsers()">Filter</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Users Table -->
+            <div class="custom-card overflow-hidden">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>ID</th>
+                      <th>User / Entity</th>
+                      <th>Role</th>
+                      <th>Status</th>
+                      <th>Activities</th>
+                      <th>Requests</th>
+                      <th>Joined</th>
+                      <th class="text-end">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminUsersTableBody">
+                    <tr>
+                      <td colspan="8" class="text-center py-4">Loading users...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 3: MODERATION QUEUE -->
+          <div class="tab-pane fade" id="tab-moderation" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <div>
+                <h3 class="fw-bold mb-1">Help Request Moderation Queue</h3>
+                <p class="text-muted small mb-0">Review submitted community needs. Approve for public display or reject spam/inappropriate requests.</p>
+              </div>
+              <div>
+                <select class="form-select form-select-sm" id="modStatusFilter" onchange="loadModerationRequests()">
+                  <option value="ALL">All Statuses</option>
+                  <option value="PENDING" selected>PENDING ONLY</option>
+                  <option value="APPROVED">APPROVED</option>
+                  <option value="REJECTED">REJECTED</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="moderationRequestsContainer" class="d-flex flex-column gap-3">
+              <div class="text-center py-4 text-muted">Loading moderation queue...</div>
+            </div>
+          </div>
+
+          <!-- TAB 4: ACTIVITY CONTROL -->
+          <div class="tab-pane fade" id="tab-activities" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <div>
+                <h3 class="fw-bold mb-1">Platform Activity Control</h3>
+                <p class="text-muted small mb-0">Inspect and oversee all community events published across the system.</p>
+              </div>
+            </div>
+
+            <div class="custom-card overflow-hidden">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>ID</th>
+                      <th>Title</th>
+                      <th>Category</th>
+                      <th>Organizer</th>
+                      <th>Date</th>
+                      <th>Location</th>
+                      <th>Volunteers</th>
+                      <th class="text-end">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminActivitiesTableBody">
+                    <tr>
+                      <td colspan="8" class="text-center py-4">Loading activities...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Moderation Action Modal -->
+  <div class="modal fade" id="moderateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-dark text-white">
+          <h5 class="modal-title fw-bold" id="moderateModalTitle">Moderate Request</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <input type="hidden" id="modRequestId">
+          <input type="hidden" id="modTargetStatus">
+          
+          <p id="modModalPrompt" class="small mb-3"></p>
+
+          <div class="mb-3">
+            <label for="modAdminNotes" class="form-label fw-semibold small">Admin Verification Note (Optional)</label>
+            <textarea class="form-control" id="modAdminNotes" rows="3" placeholder="Add verified dispatch info or reason for rejection..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary fw-semibold" id="confirmModBtn" onclick="submitModeration()">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Set admin display name
+    const currentAdmin = getCurrentUser();
+    if (currentAdmin) {
+      document.getElementById('adminNameDisplay').textContent = currentAdmin.name;
+    }
+
+    // 1. Load Overview Stats
+    async function loadAdminStats() {
+      try {
+        const res = await AdminAPI.getStats();
+        if (res.success && res.stats) {
+          const s = res.stats;
+          document.getElementById('metricTotalUsers').textContent = s.users.total_users;
+          document.getElementById('metricNGOs').textContent = s.users.total_ngos;
+          document.getElementById('metricOrgs').textContent = s.users.total_orgs;
+          document.getElementById('metricPendingReqs').textContent = s.requests.pending_requests;
+
+          document.getElementById('metricIndUsers').textContent = s.users.total_individual_users;
+          document.getElementById('metricNGOUsers').textContent = s.users.total_ngos;
+          document.getElementById('metricOrgUsers').textContent = s.users.total_orgs;
+          document.getElementById('metricAdminUsers').textContent = s.users.total_admins;
+
+          document.getElementById('metricTotalActs').textContent = s.activities.total_activities;
+          document.getElementById('metricUpcomingActs').textContent = s.activities.upcoming_activities;
+          document.getElementById('metricVolunteersJoined').textContent = s.volunteers.total_volunteers_joined;
+
+          document.getElementById('metricModPending').textContent = s.requests.pending_requests;
+          document.getElementById('metricModApproved').textContent = s.requests.approved_requests;
+          document.getElementById('metricModRejected').textContent = s.requests.rejected_requests;
+        }
+      } catch (err) {
+        showToast('Error loading admin stats: ' + err.message, 'error');
+      }
+    }
+
+    // 2. Load User Management Table
+    async function loadAdminUsers() {
+      const tbody = document.getElementById('adminUsersTableBody');
+      const role = document.getElementById('adminRoleFilter').value;
+      const status = document.getElementById('adminStatusFilter').value;
+      const search = document.getElementById('adminUserSearch').value.trim();
+
+      try {
+        const res = await AdminAPI.getUsers({
+          role: role !== 'ALL' ? role : '',
+          status: status !== 'ALL' ? status : '',
+          search: search
+        });
+
+        const users = res.users || [];
+        if (users.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">No users found matching query.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = users.map(u => {
+          const roleBadge = {
+            'ADMIN': 'badge-role-admin',
+            'NGO': 'badge-role-ngo',
+            'ORG': 'badge-role-org',
+            'USER': 'badge-role-user'
+          }[u.role] || 'bg-secondary';
+
+          const isBlocked = u.status === 'BLOCKED';
+
+          return `
+            <tr>
+              <td><span class="text-muted small">#${u.id}</span></td>
+              <td>
+                <div class="fw-bold">${u.name}</div>
+                <div class="text-muted small">${u.email}</div>
+                ${u.organization_name ? `<div class="badge bg-light text-muted border small mt-1"><i class="bi bi-building"></i> ${u.organization_name}</div>` : ''}
+              </td>
+              <td><span class="badge ${roleBadge}">${u.role}</span></td>
+              <td>
+                <span class="badge ${isBlocked ? 'badge-status-blocked' : 'badge-status-active'}">
+                  ${u.status}
+                </span>
+              </td>
+              <td>${u.activities_count || 0}</td>
+              <td>${u.requests_count || 0}</td>
+              <td><small class="text-muted">${formatDate(u.created_at)}</small></td>
+              <td class="text-end">
+                ${u.id !== currentAdmin.id ? `
+                  <button class="btn btn-sm ${isBlocked ? 'btn-outline-success' : 'btn-outline-warning'} me-1"
+                          onclick="toggleUserStatus(${u.id}, '${isBlocked ? 'ACTIVE' : 'BLOCKED'}')">
+                    ${isBlocked ? '<i class="bi bi-check-circle"></i> Unblock' : '<i class="bi bi-slash-circle"></i> Block'}
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger" onclick="deleteUser(${u.id})">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                ` : '<span class="badge bg-light text-muted">You</span>'}
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger py-4">${err.message}</td></tr>`;
+      }
+    }
+
+    // Toggle User Status (Block/Unblock)
+    async function toggleUserStatus(userId, newStatus) {
+      try {
+        const res = await AdminAPI.updateUserStatus(userId, newStatus);
+        showToast(res.message || 'Status updated.', 'success');
+        loadAdminUsers();
+        loadAdminStats();
+      } catch (err) {
+        showToast(err.message || 'Failed to update user status.', 'error');
+      }
+    }
+
+    // Delete User
+    async function deleteUser(userId) {
+      if (!confirm('Are you sure you want to permanently delete this user? All associated activities and requests will also be removed.')) return;
+      try {
+        const res = await AdminAPI.deleteUser(userId);
+        showToast(res.message || 'User deleted.', 'success');
+        loadAdminUsers();
+        loadAdminStats();
+      } catch (err) {
+        showToast(err.message || 'Failed to delete user.', 'error');
+      }
+    }
+
+    // 3. Load Moderation Requests
+    async function loadModerationRequests() {
+      const container = document.getElementById('moderationRequestsContainer');
+      const status = document.getElementById('modStatusFilter').value;
+
+      try {
+        const res = await AdminAPI.getRequests({
+          status: status !== 'ALL' ? status : ''
+        });
+
+        const requests = res.requests || [];
+        if (requests.length === 0) {
+          container.innerHTML = `<div class="p-4 text-center text-muted custom-card">No requests in this queue.</div>`;
+          return;
+        }
+
+        container.innerHTML = requests.map(req => {
+          const urgencyBadge = {
+            'CRITICAL': 'badge-urgency-critical',
+            'HIGH': 'badge-urgency-high',
+            'MEDIUM': 'badge-urgency-medium',
+            'LOW': 'badge-urgency-low'
+          }[req.urgency] || 'bg-secondary';
+
+          const statusBadge = {
+            'APPROVED': 'badge-status-active',
+            'PENDING': 'badge-status-pending',
+            'RESOLVED': 'bg-info-subtle text-info',
+            'REJECTED': 'badge-status-blocked'
+          }[req.status] || 'bg-light';
+
+          return `
+            <div class="custom-card p-4">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <span class="badge ${urgencyBadge} me-2">${req.urgency}</span>
+                  <span class="badge ${statusBadge}">${req.status}</span>
+                  <span class="badge bg-light text-dark border ms-2">${req.category}</span>
+                </div>
+                <small class="text-muted">${formatDate(req.created_at)}</small>
+              </div>
+
+              <h5 class="fw-bold mb-2">${req.title}</h5>
+              <p class="text-muted small mb-3">${req.description}</p>
+
+              <div class="row g-2 p-3 bg-light rounded-2 border mb-3 small">
+                <div class="col-md-4"><strong><i class="bi bi-person text-primary me-1"></i>Requester:</strong> ${req.user_name} (${req.user_role})</div>
+                <div class="col-md-4"><strong><i class="bi bi-telephone text-success me-1"></i>Contact:</strong> ${req.contact_info}</div>
+                <div class="col-md-4"><strong><i class="bi bi-geo-alt text-danger me-1"></i>Address:</strong> ${req.location}</div>
+                
+                <!-- GPS & Smart Geolocation Analysis -->
+                <div class="col-12 pt-2 mt-2 border-top d-flex flex-wrap justify-content-between align-items-center">
+                  <div>
+                    ${(req.latitude && req.longitude) ? `
+                      <span class="badge bg-success-subtle text-success border border-success-subtle me-2">
+                        <i class="bi bi-geo-fill"></i> GPS Verified: ${Number(req.latitude).toFixed(5)}, ${Number(req.longitude).toFixed(5)}
+                      </span>
+                      <span class="text-muted small">
+                        <i class="bi bi-shield-check text-success me-1"></i>Coordinates Attached
+                      </span>
+                    ` : `
+                      <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
+                        <i class="bi bi-exclamation-triangle"></i> Manual Address Only (No GPS)
+                      </span>
+                    `}
+                  </div>
+                  
+                  ${(req.latitude && req.longitude) ? `
+                    <div class="d-flex gap-2 mt-2 mt-md-0">
+                      <a href="https://www.google.com/maps/search/?api=1&query=${req.latitude},${req.longitude}" target="_blank" class="btn btn-xs btn-outline-primary fw-semibold">
+                        <i class="bi bi-map me-1"></i> Google Maps
+                      </a>
+                      <a href="https://www.google.com/maps/@?api=1&map_action=map&center=${req.latitude},${req.longitude}&zoom=18&basemap=satellite" target="_blank" class="btn btn-xs btn-outline-dark fw-semibold">
+                        <i class="bi bi-globe-americas me-1"></i> Satellite View
+                      </a>
+                    </div>
+                  ` : `
+                    <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(req.location)}" target="_blank" class="btn btn-xs btn-outline-secondary">
+                      <i class="bi bi-search me-1"></i> Search Address on Map
+                    </a>
+                  `}
+                </div>
+              </div>
+
+              ${req.admin_notes ? `
+                <div class="alert alert-light border p-2 mb-3 small">
+                  <strong>Admin Note:</strong> ${req.admin_notes}
+                </div>
+              ` : ''}
+
+              <div class="d-flex gap-2 justify-content-end border-top pt-2">
+                ${req.status !== 'APPROVED' ? `
+                  <button class="btn btn-sm btn-success fw-semibold" onclick="openModerateModal(${req.id}, 'APPROVED', '${escape(req.title)}')">
+                    <i class="bi bi-check-lg me-1"></i> Approve Request
+                  </button>
+                ` : ''}
+                
+                ${req.status !== 'REJECTED' ? `
+                  <button class="btn btn-sm btn-outline-danger fw-semibold" onclick="openModerateModal(${req.id}, 'REJECTED', '${escape(req.title)}')">
+                    <i class="bi bi-x-lg me-1"></i> Reject
+                  </button>
+                ` : ''}
+
+                ${req.status === 'APPROVED' ? `
+                  <button class="btn btn-sm btn-outline-info fw-semibold" onclick="openModerateModal(${req.id}, 'RESOLVED', '${escape(req.title)}')">
+                    <i class="bi bi-check2-all me-1"></i> Mark Resolved
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        container.innerHTML = `<div class="alert alert-danger">${err.message}</div>`;
+      }
+    }
+
+    // Open Moderation Modal
+    function openModerateModal(requestId, targetStatus, escapedTitle) {
+      const title = unescape(escapedTitle);
+      document.getElementById('modRequestId').value = requestId;
+      document.getElementById('modTargetStatus').value = targetStatus;
+      document.getElementById('moderateModalTitle').textContent = `Moderate: ${targetStatus}`;
+      document.getElementById('modModalPrompt').innerHTML = `You are setting the status of <strong>"${title}"</strong> to <span class="badge ${targetStatus === 'APPROVED' ? 'bg-success' : 'bg-danger'}">${targetStatus}</span>.`;
+      document.getElementById('modAdminNotes').value = '';
+
+      const modal = new bootstrap.Modal(document.getElementById('moderateModal'));
+      modal.show();
+    }
+
+    // Submit Moderation
+    async function submitModeration() {
+      const requestId = document.getElementById('modRequestId').value;
+      const status = document.getElementById('modTargetStatus').value;
+      const admin_notes = document.getElementById('modAdminNotes').value.trim();
+
+      try {
+        const res = await AdminAPI.moderateRequest(requestId, status, admin_notes);
+        showToast(res.message || 'Request updated.', 'success');
+
+        const modalEl = document.getElementById('moderateModal');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+
+        loadModerationRequests();
+        loadAdminStats();
+      } catch (err) {
+        showToast(err.message || 'Moderation failed.', 'error');
+      }
+    }
+
+    // 4. Load Admin Activity Oversight
+    async function loadAdminActivities() {
+      const tbody = document.getElementById('adminActivitiesTableBody');
+      try {
+        const res = await ActivitiesAPI.getAll();
+        const activities = res.activities || [];
+
+        if (activities.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">No activities found.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = activities.map(a => `
+          <tr>
+            <td><span class="text-muted small">#${a.id}</span></td>
+            <td><strong>${a.title}</strong></td>
+            <td><span class="badge bg-primary-subtle text-primary">${a.category}</span></td>
+            <td>${a.creator_name} <span class="badge bg-light text-dark border small">${a.creator_role}</span></td>
+            <td><small class="text-muted">${formatDate(a.event_date)}</small></td>
+            <td><small>${a.location}</small></td>
+            <td><span class="badge bg-success-subtle text-success">${a.participant_count} / ${a.target_volunteers || '∞'}</span></td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-outline-danger" onclick="adminDeleteActivity(${a.id})">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger py-4">${err.message}</td></tr>`;
+      }
+    }
+
+    // Admin Delete Activity
+    async function adminDeleteActivity(actId) {
+      if (!confirm('Are you sure you want to remove this activity from the platform?')) return;
+      try {
+        const res = await ActivitiesAPI.delete(actId);
+        showToast(res.message || 'Activity removed.', 'success');
+        loadAdminActivities();
+        loadAdminStats();
+      } catch (err) {
+        showToast(err.message || 'Failed to delete activity.', 'error');
+      }
+    }
+
+    // User Search listener
+    document.getElementById('adminUserSearch').addEventListener('input', () => loadAdminUsers());
+    document.getElementById('adminRoleFilter').addEventListener('change', () => loadAdminUsers());
+    document.getElementById('adminStatusFilter').addEventListener('change', () => loadAdminUsers());
+
+    // Initial Load
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAdminStats();
+    });
+  </script>
+</body>
+</html>

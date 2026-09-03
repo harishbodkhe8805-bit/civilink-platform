@@ -1,0 +1,240 @@
+/* =======================================================
+   Community Platform - Main CSS Style
+   Clean, modern, responsive Bootstrap 5 Enhancements
+   ======================================================= */
+
+:root {
+  --primary-color: #2563eb;
+  --primary-dark: #1d4ed8;
+  --secondary-color: #475569;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  --admin-color: #7c3aed;
+  --bg-light: #f8fafc;
+  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --card-hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+  background-color: var(--bg-light);
+  color: #1e293b;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
+
+/* Custom Navbar */
+.navbar-custom {
+  background: #ffffff;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
+  padding: 0.75rem 1rem;
+}
+
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #1e293b !important;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.navbar-brand span {
+  color: var(--primary-color);
+}
+
+.nav-link {
+  font-weight: 500;
+  color: #475569 !important;
+  padding: 0.5rem 0.85rem !important;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover, .nav-link.active {
+  color: var(--primary-color) !important;
+  background-color: #eff6ff;
+}
+
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  color: white;
+  padding: 4rem 1rem;
+  border-radius: 0 0 1.5rem 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+/* Cards & Hover Effects */
+.custom-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+}
+
+.custom-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--card-hover-shadow);
+}
+
+.stat-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  box-shadow: var(--card-shadow);
+}
+
+.stat-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+/* Role Badges */
+.badge-role-user {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+.badge-role-ngo {
+  background-color: #d1fae5;
+  color: #047857;
+  font-weight: 600;
+}
+
+.badge-role-org {
+  background-color: #ede9fe;
+  color: #6d28d9;
+  font-weight: 600;
+}
+
+.badge-role-admin {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  font-weight: 700;
+  border: 1px solid #f87171;
+}
+
+/* Status Badges */
+.badge-status-active {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.badge-status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge-status-blocked {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Urgency Badges */
+.badge-urgency-low { background-color: #e2e8f0; color: #334155; }
+.badge-urgency-medium { background-color: #fef3c7; color: #b45309; }
+.badge-urgency-high { background-color: #ffedd5; color: #c2410c; }
+.badge-urgency-critical { background-color: #fee2e2; color: #b91c1c; font-weight: bold; }
+
+/* Admin Sidebar Layout */
+.admin-layout {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.admin-sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 1.25rem 0.75rem;
+  box-shadow: var(--card-shadow);
+  height: fit-content;
+}
+
+.admin-sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  color: #475569;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+  margin-bottom: 0.25rem;
+}
+
+.admin-sidebar-link:hover, .admin-sidebar-link.active {
+  background-color: #f3e8ff;
+  color: #6b21a8;
+  font-weight: 600;
+}
+
+.admin-content {
+  flex: 1;
+}
+
+/* Auth Cards */
+.auth-container {
+  max-width: 520px;
+  margin: 3rem auto;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.auth-tabs .nav-link {
+  font-weight: 600;
+  color: #64748b !important;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 0.75rem 1rem;
+}
+
+.auth-tabs .nav-link.active {
+  color: var(--primary-color) !important;
+  border-bottom: 2px solid var(--primary-color);
+  background: transparent;
+}
+
+/* Toast Container */
+#toastContainer {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 1080;
+}
+
+/* Footer */
+footer {
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  padding: 1.5rem 0;
+  margin-top: auto;
+  color: #64748b;
+  font-size: 0.9rem;
+}

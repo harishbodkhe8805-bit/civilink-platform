@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Civilink - Community & Volunteer Platform</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Dynamic Navigation Bar -->
+  <div id="mainNavbar"></div>
+
+  <!-- Hero Section -->
+  <section class="hero-section text-center">
+    <div class="container py-4">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <span class="badge bg-white text-primary px-3 py-2 rounded-pill fw-bold mb-3 shadow-sm">
+            <i class="bi bi-stars"></i> Empowering Communities Together
+          </span>
+          <h1 class="display-4 fw-bold mb-3">Connecting People, NGOs & Organizations for Real Impact</h1>
+          <p class="lead text-white-50 mb-4">
+            Join hands to organize social events, volunteer for meaningful causes, and provide rapid support to urgent community resource requests.
+          </p>
+          <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="activities.html" class="btn btn-light btn-lg px-4 fw-semibold text-primary shadow-sm">
+              <i class="bi bi-calendar-event me-2"></i> Explore Activities
+            </a>
+            <a href="requests.html" class="btn btn-outline-light btn-lg px-4 fw-semibold">
+              <i class="bi bi-chat-heart me-2"></i> Request Help
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live Platform Stats -->
+  <section class="container mb-5">
+    <div class="row g-4 text-center" id="liveStatsRow">
+      <div class="col-md-3 col-6">
+        <div class="stat-card justify-content-center flex-column">
+          <div class="stat-icon bg-primary-subtle text-primary mb-2">
+            <i class="bi bi-people-fill"></i>
+          </div>
+          <h3 class="fw-bold mb-0" id="statUsers">--</h3>
+          <p class="text-muted small mb-0">Active Members</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="stat-card justify-content-center flex-column">
+          <div class="stat-icon bg-success-subtle text-success mb-2">
+            <i class="bi bi-heart-fill"></i>
+          </div>
+          <h3 class="fw-bold mb-0" id="statNGOs">--</h3>
+          <p class="text-muted small mb-0">NGOs & Orgs</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="stat-card justify-content-center flex-column">
+          <div class="stat-icon bg-warning-subtle text-warning mb-2">
+            <i class="bi bi-calendar2-check-fill"></i>
+          </div>
+          <h3 class="fw-bold mb-0" id="statActivities">--</h3>
+          <p class="text-muted small mb-0">Community Initiatives</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="stat-card justify-content-center flex-column">
+          <div class="stat-icon bg-danger-subtle text-danger mb-2">
+            <i class="bi bi-hand-thumbs-up-fill"></i>
+          </div>
+          <h3 class="fw-bold mb-0" id="statVolunteers">--</h3>
+          <p class="text-muted small mb-0">Volunteers Joined</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content: Featured Activities & Urgent Requests -->
+  <main class="container mb-5">
+    <div class="row g-4">
+      
+      <!-- Featured Activities Column -->
+      <div class="col-lg-7">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h4 class="fw-bold mb-0"><i class="bi bi-fire text-danger me-2"></i>Upcoming Activities</h4>
+            <small class="text-muted">Volunteer opportunities open for registration</small>
+          </div>
+          <a href="activities.html" class="btn btn-sm btn-outline-primary fw-medium">View All <i class="bi bi-arrow-right"></i></a>
+        </div>
+
+        <div id="featuredActivitiesContainer" class="d-flex flex-column gap-3">
+          <div class="text-center py-4">
+            <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
+            <span class="ms-2 text-muted">Loading activities...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Urgent Help Requests Column -->
+      <div class="col-lg-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h4 class="fw-bold mb-0"><i class="bi bi-exclamation-octagon text-danger me-2"></i>Urgent Requests</h4>
+            <small class="text-muted">Community needs verified & approved</small>
+          </div>
+          <a href="requests.html" class="btn btn-sm btn-outline-primary fw-medium">View All <i class="bi bi-arrow-right"></i></a>
+        </div>
+
+        <div id="urgentRequestsContainer" class="d-flex flex-column gap-3">
+          <div class="text-center py-4">
+            <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
+            <span class="ms-2 text-muted">Loading requests...</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Role Information Cards -->
+    <section class="mt-5 pt-4 border-top">
+      <div class="text-center mb-4">
+        <h3 class="fw-bold">Who is Civilink for?</h3>
+        <p class="text-muted">Explore the dedicated capabilities designed for each role</p>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="custom-card p-4 h-100 border-start border-4 border-primary">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <div class="stat-icon bg-primary-subtle text-primary">
+                <i class="bi bi-person-heart"></i>
+              </div>
+              <h5 class="fw-bold mb-0">Volunteers & Individuals</h5>
+            </div>
+            <p class="text-muted small">
+              Discover and sign up for local volunteer drives, tree planting, education workshops, or request emergency assistance when in need.
+            </p>
+            <a href="register.html?role=USER" class="btn btn-sm btn-outline-primary w-100 fw-medium">Sign Up as Volunteer</a>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="custom-card p-4 h-100 border-start border-4 border-success">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <div class="stat-icon bg-success-subtle text-success">
+                <i class="bi bi-heart-pulse"></i>
+              </div>
+              <h5 class="fw-bold mb-0">NGOs & Non-Profits</h5>
+            </div>
+            <p class="text-muted small">
+              Publish community events, mobilize passionate volunteers, manage registrations, and coordinate relief supply efforts smoothly.
+            </p>
+            <a href="register.html?role=NGO" class="btn btn-sm btn-outline-success w-100 fw-medium">Register NGO</a>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="custom-card p-4 h-100 border-start border-4 border-info">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <div class="stat-icon bg-info-subtle text-info">
+                <i class="bi bi-building-check"></i>
+              </div>
+              <h5 class="fw-bold mb-0">Organizations & CSR</h5>
+            </div>
+            <p class="text-muted small">
+              Host corporate social responsibility campaigns, sponsor youth initiatives, and drive collaborative philanthropy across cities.
+            </p>
+            <a href="register.html?role=ORG" class="btn btn-sm btn-outline-info w-100 fw-medium">Register Organization</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center">
+    <div class="container">
+      <div class="d-flex flex-wrap justify-content-between align-items-center py-2">
+        <div class="text-muted small">
+          © 2026 <strong>Civilink Platform</strong>. All Rights Reserved.
+        </div>
+        <div class="d-flex gap-3 small">
+          <a href="activities.html" class="text-decoration-none text-muted">Activities</a>
+          <a href="requests.html" class="text-decoration-none text-muted">Requests</a>
+          <a href="login.html" class="text-decoration-none text-muted">Login</a>
+          <a href="admin-register.html" class="text-decoration-none text-danger fw-semibold">Admin Access</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    async function loadHomePageData() {
+      // 1. Fetch Activities
+      try {
+        const actRes = await ActivitiesAPI.getAll();
+        const activities = actRes.activities || [];
+        
+        // Update stats
+        document.getElementById('statActivities').textContent = activities.length;
+        
+        let totalVolunteers = activities.reduce((sum, a) => sum + (parseInt(a.participant_count) || 0), 0);
+        document.getElementById('statVolunteers').textContent = totalVolunteers;
+
+        const featured = activities.slice(0, 3);
+        const container = document.getElementById('featuredActivitiesContainer');
+        
+        if (featured.length === 0) {
+          container.innerHTML = `<div class="p-4 text-center text-muted custom-card">No upcoming activities found. Be the first to create one!</div>`;
+        } else {
+          container.innerHTML = featured.map(act => `
+            <div class="custom-card p-3">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="badge bg-primary-subtle text-primary fw-semibold">${act.category}</span>
+                <small class="text-muted"><i class="bi bi-clock me-1"></i>${formatDate(act.event_date)}</small>
+              </div>
+              <h5 class="fw-bold mb-1">${act.title}</h5>
+              <p class="text-muted small mb-2 text-truncate-2">${act.description}</p>
+              <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                <small class="text-muted"><i class="bi bi-geo-alt me-1"></i>${act.location}</small>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="badge bg-light text-dark border">
+                    <i class="bi bi-people me-1"></i>${act.participant_count} / ${act.target_volunteers || '∞'} joined
+                  </span>
+                  <a href="activities.html" class="btn btn-sm btn-primary">Details</a>
+                </div>
+              </div>
+            </div>
+          `).join('');
+        }
+      } catch (err) {
+        document.getElementById('featuredActivitiesContainer').innerHTML = `
+          <div class="alert alert-warning small">Could not load activities: ${err.message}</div>
+        `;
+      }
+
+      // 2. Fetch Requests
+      try {
+        const reqRes = await RequestsAPI.getAll();
+        const requests = reqRes.requests || [];
+        const urgent = requests.slice(0, 3);
+        const container = document.getElementById('urgentRequestsContainer');
+
+        if (urgent.length === 0) {
+          container.innerHTML = `<div class="p-4 text-center text-muted custom-card">No pending community requests right now.</div>`;
+        } else {
+          container.innerHTML = urgent.map(req => {
+            const urgencyBadge = {
+              'CRITICAL': 'badge-urgency-critical',
+              'HIGH': 'badge-urgency-high',
+              'MEDIUM': 'badge-urgency-medium',
+              'LOW': 'badge-urgency-low'
+            }[req.urgency] || 'bg-secondary';
+
+            return `
+              <div class="custom-card p-3 border-start border-3 border-danger">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <span class="badge ${urgencyBadge}">${req.urgency} PRIORITY</span>
+                  <small class="text-muted">${req.category}</small>
+                </div>
+                <h6 class="fw-bold mb-1">${req.title}</h6>
+                <p class="text-muted small mb-2 text-truncate-2">${req.description}</p>
+                <div class="d-flex justify-content-between align-items-center small text-muted pt-2 border-top">
+                  <span>
+                    <i class="bi bi-geo-alt me-1 text-danger"></i>${req.location}
+                    ${(req.latitude && req.longitude) ? `
+                      <a href="https://www.google.com/maps?q=${req.latitude},${req.longitude}" target="_blank" class="ms-1 text-primary text-decoration-none" title="View on Map">
+                        <i class="bi bi-pin-map-fill"></i>
+                      </a>
+                    ` : ''}
+                  </span>
+                  <a href="requests.html" class="text-primary fw-semibold text-decoration-none">Help Out <i class="bi bi-arrow-right"></i></a>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      } catch (err) {
+        document.getElementById('urgentRequestsContainer').innerHTML = `
+          <div class="alert alert-warning small">Could not load requests: ${err.message}</div>
+        `;
+      }
+
+      // 3. Fallback counter numbers if not loaded from admin
+      if (document.getElementById('statUsers').textContent === '--') {
+        document.getElementById('statUsers').textContent = '120+';
+        document.getElementById('statNGOs').textContent = '24';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadHomePageData);
+  </script>
+</body>
+</html>

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Activities & Events - Civilink</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Dynamic Navigation Bar -->
+  <div id="mainNavbar"></div>
+
+  <!-- Page Header -->
+  <div class="bg-primary text-white py-4 mb-4">
+    <div class="container">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+          <h2 class="fw-bold mb-1"><i class="bi bi-calendar-event me-2"></i>Community Activities & Drives</h2>
+          <p class="text-white-50 mb-0">Discover meaningful volunteer drives hosted by NGOs, Organizations, and Community Leaders.</p>
+        </div>
+        <div id="createActivityBtnContainer">
+          <!-- Populated dynamically based on role -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="container mb-5">
+    
+    <!-- Filter & Search Controls -->
+    <div class="custom-card p-3 mb-4">
+      <div class="row g-3 align-items-center">
+        <div class="col-md-5">
+          <div class="input-group">
+            <span class="input-group-text bg-white text-muted"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control" id="searchQuery" placeholder="Search by title, description or location...">
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="input-group">
+            <span class="input-group-text bg-white text-muted"><i class="bi bi-filter"></i></span>
+            <select class="form-select" id="categoryFilter">
+              <option value="ALL">All Categories</option>
+              <option value="Environment">Environment & Tree Plantation</option>
+              <option value="Education">Education & Youth Literacy</option>
+              <option value="Health">Healthcare & Medical Drives</option>
+              <option value="Food Relief">Food Relief & Hunger Support</option>
+              <option value="Disaster Relief">Disaster Relief & Emergencies</option>
+              <option value="Animal Welfare">Animal Welfare & Shelter</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-3 text-md-end">
+          <button class="btn btn-outline-secondary w-100" type="button" onclick="resetFilters()">
+            <i class="bi bi-arrow-counterclockwise me-1"></i> Reset Filters
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activities Grid -->
+    <div id="activitiesGrid" class="row g-4">
+      <div class="col-12 text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <div class="mt-2 text-muted">Loading activities...</div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Create Activity Modal (For NGO, ORG, ADMIN) -->
+  <div class="modal fade" id="createActivityModal" tabindex="-1" aria-labelledby="createActivityModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title fw-bold" id="createActivityModalLabel">
+            <i class="bi bi-plus-circle-fill me-2"></i> Publish New Community Activity
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="createActivityForm">
+          <div class="modal-body p-4">
+            
+            <div class="mb-3">
+              <label for="actTitle" class="form-label fw-semibold small">Activity Title</label>
+              <input type="text" class="form-control" id="actTitle" placeholder="e.g. City Clean-up & Recycling Drive" required>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label for="actCategory" class="form-label fw-semibold small">Category</label>
+                <select class="form-select" id="actCategory" required>
+                  <option value="" disabled selected>Choose category</option>
+                  <option value="Environment">Environment</option>
+                  <option value="Education">Education</option>
+                  <option value="Health">Healthcare</option>
+                  <option value="Food Relief">Food Relief</option>
+                  <option value="Disaster Relief">Disaster Relief</option>
+                  <option value="Animal Welfare">Animal Welfare</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="actVolunteers" class="form-label fw-semibold small">Target Volunteer Capacity</label>
+                <input type="number" class="form-control" id="actVolunteers" placeholder="e.g. 50" min="1" value="25">
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label for="actDate" class="form-label fw-semibold small">Event Date & Time</label>
+                <input type="datetime-local" class="form-control" id="actDate" required>
+              </div>
+              <div class="col-md-6">
+                <label for="actLocation" class="form-label fw-semibold small">Location / Meeting Point</label>
+                <input type="text" class="form-control" id="actLocation" placeholder="e.g. Central City Park Gate 2" required>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="actDescription" class="form-label fw-semibold small">Detailed Description</label>
+              <textarea class="form-control" id="actDescription" rows="4" placeholder="Explain the agenda, what volunteers need to bring, and the expected impact..." required></textarea>
+            </div>
+
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary fw-semibold" id="publishActBtn">
+              <span id="publishSpinner" class="spinner-border spinner-border-sm d-none me-2"></span>
+              Publish Activity
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="text-center">
+    <div class="container">
+      <div class="text-muted small">© 2026 Civilink Platform. Community Action.</div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    let allActivities = [];
+
+    // Initialize UI based on current user role
+    function setupRoleActions() {
+      const user = getCurrentUser();
+      const btnContainer = document.getElementById('createActivityBtnContainer');
+
+      if (user && ['NGO', 'ORG', 'ADMIN'].includes(user.role)) {
+        btnContainer.innerHTML = `
+          <button class="btn btn-light fw-bold text-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#createActivityModal">
+            <i class="bi bi-plus-lg me-1"></i> Post New Activity
+          </button>
+        `;
+      } else if (!user) {
+        btnContainer.innerHTML = `
+          <a href="login.html?redirect=activities.html" class="btn btn-outline-light btn-sm fw-semibold">
+            Log In to Post Activities
+          </a>
+        `;
+      } else {
+        btnContainer.innerHTML = `
+          <span class="badge bg-white text-primary px-3 py-2 fw-semibold">
+            <i class="bi bi-person-heart"></i> Volunteer Account
+          </span>
+        `;
+      }
+    }
+
+    // Fetch and render activities
+    async function loadActivities() {
+      const grid = document.getElementById('activitiesGrid');
+      const category = document.getElementById('categoryFilter').value;
+      const search = document.getElementById('searchQuery').value.trim();
+
+      try {
+        const res = await ActivitiesAPI.getAll({
+          category: category !== 'ALL' ? category : '',
+          search: search
+        });
+
+        allActivities = res.activities || [];
+        renderActivitiesList(allActivities);
+      } catch (err) {
+        grid.innerHTML = `
+          <div class="col-12">
+            <div class="alert alert-danger">Failed to load activities: ${err.message}</div>
+          </div>
+        `;
+      }
+    }
+
+    function renderActivitiesList(activities) {
+      const grid = document.getElementById('activitiesGrid');
+      const currentUser = getCurrentUser();
+
+      if (activities.length === 0) {
+        grid.innerHTML = `
+          <div class="col-12 text-center py-5">
+            <div class="stat-icon bg-light text-muted mx-auto mb-3"><i class="bi bi-calendar-x fs-2"></i></div>
+            <h5 class="fw-bold text-muted">No activities found matching your criteria</h5>
+            <p class="text-muted small">Try adjusting your filters or check back later.</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = activities.map(act => {
+        const isOrganizer = currentUser && (act.created_by === currentUser.id || currentUser.role === 'ADMIN');
+        const hasJoined = act.has_joined === 1;
+
+        const roleBadgeClass = {
+          'NGO': 'badge-role-ngo',
+          'ORG': 'badge-role-org',
+          'ADMIN': 'badge-role-admin',
+          'USER': 'badge-role-user'
+        }[act.creator_role] || 'badge-secondary';
+
+        return `
+          <div class="col-md-6 col-lg-4">
+            <div class="custom-card h-100 d-flex flex-column">
+              <div class="p-3 bg-light border-bottom d-flex justify-content-between align-items-center">
+                <span class="badge bg-primary-subtle text-primary fw-semibold">${act.category}</span>
+                <span class="badge ${roleBadgeClass}">${act.creator_name || 'Organizer'}</span>
+              </div>
+              <div class="p-3 flex-grow-1 d-flex flex-column">
+                <h5 class="fw-bold mb-2 text-dark">${act.title}</h5>
+                <p class="text-muted small mb-3 flex-grow-1">${act.description}</p>
+                
+                <div class="small text-muted mb-2">
+                  <div class="mb-1"><i class="bi bi-clock me-2 text-primary"></i>${formatDate(act.event_date)}</div>
+                  <div><i class="bi bi-geo-alt me-2 text-danger"></i>${act.location}</div>
+                </div>
+
+                <div class="p-2 bg-light rounded-2 border d-flex justify-content-between align-items-center mb-3">
+                  <span class="small fw-semibold text-muted">Volunteers:</span>
+                  <span class="badge bg-white text-dark border">
+                    <i class="bi bi-people-fill text-success me-1"></i> ${act.participant_count} / ${act.target_volunteers || 'Open'}
+                  </span>
+                </div>
+
+                <div class="d-flex gap-2 align-items-center pt-2 border-top mt-auto">
+                  ${currentUser ? `
+                    <button class="btn btn-sm ${hasJoined ? 'btn-outline-danger' : 'btn-primary'} flex-grow-1 fw-semibold" 
+                            onclick="toggleParticipation(${act.id}, ${hasJoined})">
+                      <i class="bi ${hasJoined ? 'bi-dash-circle' : 'bi-check2-circle'} me-1"></i>
+                      ${hasJoined ? 'Leave Activity' : 'Join as Volunteer'}
+                    </button>
+                  ` : `
+                    <a href="login.html?redirect=activities.html" class="btn btn-sm btn-outline-primary flex-grow-1 fw-semibold">
+                      Log In to Join
+                    </a>
+                  `}
+
+                  ${isOrganizer ? `
+                    <button class="btn btn-sm btn-outline-danger" title="Delete Activity" onclick="deleteActivity(${act.id})">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  ` : ''}
+                </div>
+
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Toggle Join/Leave
+    async function toggleParticipation(activityId, hasJoined) {
+      try {
+        if (hasJoined) {
+          if (!confirm('Are you sure you want to cancel your participation?')) return;
+          const res = await ActivitiesAPI.leave(activityId);
+          showToast(res.message || 'Cancelled participation.', 'info');
+        } else {
+          const res = await ActivitiesAPI.join(activityId);
+          showToast(res.message || 'Successfully joined activity!', 'success');
+        }
+        await loadActivities();
+      } catch (err) {
+        showToast(err.message || 'Failed to update registration.', 'error');
+      }
+    }
+
+    // Delete Activity
+    async function deleteActivity(activityId) {
+      if (!confirm('Are you sure you want to delete this activity? This cannot be undone.')) return;
+      try {
+        const res = await ActivitiesAPI.delete(activityId);
+        showToast(res.message || 'Activity deleted.', 'success');
+        await loadActivities();
+      } catch (err) {
+        showToast(err.message || 'Failed to delete activity.', 'error');
+      }
+    }
+
+    // Create Activity Form Submission
+    document.getElementById('createActivityForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('actTitle').value.trim();
+      const category = document.getElementById('actCategory').value;
+      const target_volunteers = document.getElementById('actVolunteers').value;
+      const event_date = document.getElementById('actDate').value;
+      const location = document.getElementById('actLocation').value.trim();
+      const description = document.getElementById('actDescription').value.trim();
+
+      const spinner = document.getElementById('publishSpinner');
+      const btn = document.getElementById('publishActBtn');
+
+      spinner.classList.remove('d-none');
+      btn.disabled = true;
+
+      try {
+        const res = await ActivitiesAPI.create({
+          title,
+          category,
+          target_volunteers,
+          event_date,
+          location,
+          description
+        });
+
+        showToast(res.message || 'Activity created successfully!', 'success');
+        
+        // Close modal and reset
+        const modalEl = document.getElementById('createActivityModal');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+        document.getElementById('createActivityForm').reset();
+
+        await loadActivities();
+      } catch (err) {
+        showToast(err.message || 'Failed to publish activity.', 'error');
+      } finally {
+        spinner.classList.add('d-none');
+        btn.disabled = false;
+      }
+    });
+
+    function resetFilters() {
+      document.getElementById('searchQuery').value = '';
+      document.getElementById('categoryFilter').value = 'ALL';
+      loadActivities();
+    }
+
+    // Search and filter listeners
+    document.getElementById('searchQuery').addEventListener('input', () => loadActivities());
+    document.getElementById('categoryFilter').addEventListener('change', () => loadActivities());
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setupRoleActions();
+      loadActivities();
+    });
+  </script>
+</body>
+</html>
