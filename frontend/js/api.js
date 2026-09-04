@@ -3,10 +3,10 @@
    Manages REST API communication, JWT headers & errors
    ======================================================= */
 
-// Automatically detect the correct API URL
-const API_BASE_URL = (window.location.hostname === 'localhost' && window.location.port === '5000')
-  ? '/api'
-  : 'http://localhost:5000/api';
+// Automatically detect the correct API URL (Works on Render, Mobile Phones, LAN IP, and Localhost)
+const API_BASE_URL = (window.location.port === '5500')
+  ? 'http://localhost:5000/api'
+  : (window.location.origin.startsWith('http') ? '/api' : 'http://localhost:5000/api');
 
 async function apiRequest(endpoint, options = {}) {
   const token = localStorage.getItem('token');
