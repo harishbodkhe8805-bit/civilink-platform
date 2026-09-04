@@ -173,28 +173,37 @@ async function seedMemoryStore() {
 
 // Initialize Database Connection & Tables
 async function initDB() {
+  const isCloudDB = process.env.DB_HOST && 
+                    process.env.DB_HOST !== 'localhost' && 
+                    process.env.DB_HOST !== '127.0.0.1';
+
   const dbConfig = {
     host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 3306,
+    port: parseInt(process.env.DB_PORT, 10) || 3306,
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || '',
     database: process.env.DB_NAME || 'community_platform',
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
+    queueLimit: 0,
+    ssl: isCloudDB ? { rejectUnauthorized: false } : undefined
   };
 
   try {
     // Attempt connecting to MySQL server directly
-    const tempConnection = await mysql.createConnection({
-      host: dbConfig.host,
-      port: dbConfig.port,
-      user: dbConfig.user,
-      password: dbConfig.password
-    });
-
-    await tempConnection.query(`CREATE DATABASE IF NOT EXISTS \`${dbConfig.database}\`;`);
-    await tempConnection.end();
+    try {
+      const tempConnection = await mysql.createConnection({
+        host: dbConfig.host,
+        port: dbConfig.port,
+        user: dbConfig.user,
+        password: dbConfig.password,
+        ssl: dbConfig.ssl
+      });
+      await tempConnection.query(`CREATE DATABASE IF NOT EXISTS \`${dbConfig.database}\`;`);
+      await tempConnection.end();
+    } catch (e) {
+      // Ignore if user does not have permission to CREATE DATABASE on cloud providers
+    }
 
     // Create pool
     pool = mysql.createPool(dbConfig);

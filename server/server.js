@@ -4,7 +4,7 @@ const morgan = require('morgan');
 const path = require('path');
 require('dotenv').config();
 
-const { initDB } = require('./config/db');
+const { initDB, isFallback } = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const activityRoutes = require('./routes/activityRoutes');
 const requestRoutes = require('./routes/requestRoutes');
@@ -33,8 +33,10 @@ app.use('/api/admin', adminRoutes);
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
+    database_mode: isFallback() ? 'IN_MEMORY_RAM_ONLY' : 'MYSQL_CONNECTED',
+    database_name: process.env.DB_NAME || 'community_platform',
     timestamp: new Date(),
-    service: 'Community Platform API'
+    service: 'Civilink Platform API'
   });
 });
 
@@ -66,9 +68,10 @@ async function startServer() {
   await initDB();
   app.listen(PORT, () => {
     console.log(`====================================================`);
-    console.log(`🚀 Community Platform Server running on port ${PORT}`);
-    console.log(`🌐 Web App accessible at: http://localhost:${PORT}`);
-    console.log(`🛡️  Admin Panel accessible at: http://localhost:${PORT}/admin.html`);
+    console.log(`🚀 Civilink Platform Server running on port ${PORT}`);
+    console.log(`💾 Database: ${isFallback() ? '⚠️  IN-MEMORY FALLBACK (Data saving to RAM, MySQL is OFFLINE)' : '✅ MYSQL LIVE CONNECTED (' + (process.env.DB_NAME || 'community_platform') + ')'}`);
+    console.log(`🌐 Web App: http://localhost:${PORT}`);
+    console.log(`🛡️  Admin Panel: http://localhost:${PORT}/admin.html`);
     console.log(`====================================================`);
   });
 }
