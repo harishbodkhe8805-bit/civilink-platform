@@ -43,8 +43,13 @@ async function apiRequest(endpoint, options = {}) {
     return data;
   } catch (err) {
     console.error(`API Error on [${options.method || 'GET'} ${endpoint}]:`, err.message);
-    if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
-      throw new Error('Cannot connect to backend server at http://localhost:5000. Make sure the Node server is running via `npm start`.');
+    if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError') || err.name === 'TypeError') {
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      if (isLocal) {
+        throw new Error('Cannot connect to local backend server. Make sure the Node server is running via `npm start`.');
+      } else {
+        throw new Error('Connecting to cloud server... On free hosting (Render), the server wakes up in ~30-40 seconds. Please wait 15 seconds and tap Submit again.');
+      }
     }
     throw err;
   }
