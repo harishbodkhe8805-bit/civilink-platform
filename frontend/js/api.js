@@ -4,9 +4,16 @@
    ======================================================= */
 
 // Automatically detect the correct API URL (Works on Render, Mobile Phones, LAN IP, and Localhost)
-const API_BASE_URL = (window.location.port === '5500')
-  ? 'http://localhost:5000/api'
-  : (window.location.origin.startsWith('http') ? '/api' : 'http://localhost:5000/api');
+let API_BASE_URL = '/api';
+if (typeof window !== 'undefined' && window.location) {
+  if (window.location.port === '5500') {
+    API_BASE_URL = 'http://localhost:5000/api';
+  } else if (window.location.protocol === 'file:') {
+    API_BASE_URL = 'http://localhost:5000/api';
+  } else {
+    API_BASE_URL = '/api';
+  }
+}
 
 async function apiRequest(endpoint, options = {}) {
   const token = localStorage.getItem('token');
