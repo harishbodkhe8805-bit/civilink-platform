@@ -282,4 +282,51 @@ router.get('/me', verifyToken, async (req, res) => {
   });
 });
 
+// 5. Direct Password Reset / Recovery Endpoint
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { email, new_password } = req.body;
+
+    if (!email || !new_password) {
+      return res.status(400).json({ success: false, error: 'Please provide both email and new password.' });
+    }
+
+    if (new_password.length < 6) {
+      return res.status(400).json({ success: false, error: 'New password must be at least 6 characters.' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const newHash = await bcrypt.hash(new_password, 10);
+
+    if (!isFallback()) {
+      const pool = getPool();
+      const [rows] = await pool.query('SELECT id, name, role FROM users WHERE email = ?', [cleanEmail]);
+      if (rows.length === 0) {
+        return res.status(404).json({ success: false, error: 'No account found with this email address.' });
+      }
+
+      await pool.query('UPDATE users SET password_hash = ? WHERE email = ?', [newHash, cleanEmail]);
+      return res.json({
+        success: true,
+        message: `Password reset successfully for ${rows[0].name}! You can now login with your new password.`
+      });
+    } else {
+      const memory = getMemoryStore();
+      const user = memory.users.find(u => u.email.toLowerCase() === cleanEmail);
+      if (!user) {
+        return res.status(404).json({ success: false, error: 'No account found with this email address.' });
+      }
+
+      user.password_hash = newHash;
+      return res.json({
+        success: true,
+        message: `Password reset successfully for ${user.name}! You can now login with your new password.`
+      });
+    }
+  } catch (err) {
+    console.error('Password reset error:', err);
+    res.status(500).json({ success: false, error: 'Password reset failed: ' + err.message });
+  }
+});
+
 module.exports = router;
