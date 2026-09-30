@@ -236,9 +236,12 @@ router.get('/requests', async (req, res) => {
       let query = `
         SELECT 
           r.*,
-          u.name AS user_name, u.email AS user_email, u.role AS user_role, u.organization_name AS user_org
+          COALESCE(u.name, 'Community Member') AS user_name,
+          COALESCE(u.email, 'guest@civilink.org') AS user_email,
+          COALESCE(u.role, 'USER') AS user_role,
+          u.organization_name AS user_org
         FROM help_requests r
-        JOIN users u ON r.user_id = u.id
+        LEFT JOIN users u ON r.user_id = u.id
         WHERE 1=1
       `;
       const params = [];
