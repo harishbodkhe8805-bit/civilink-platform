@@ -537,6 +537,8 @@
         }
 
         container.innerHTML = requests.map(req => {
+          const isSOS = req.category === 'SOS Emergency' || req.title.includes('SOS EMERGENCY');
+          
           const urgencyBadge = {
             'CRITICAL': 'badge-urgency-critical',
             'HIGH': 'badge-urgency-high',
@@ -552,9 +554,10 @@
           }[req.status] || 'bg-light';
 
           return `
-            <div class="custom-card p-4">
+            <div class="custom-card p-4 ${isSOS ? 'border-start border-danger border-5 bg-danger-subtle bg-opacity-10' : ''}">
               <div class="d-flex justify-content-between align-items-start mb-2">
                 <div>
+                  ${isSOS ? `<span class="badge bg-danger text-white me-2 animate__animated animate__flash"><i class="bi bi-exclamation-octagon-fill me-1"></i>SOS EMERGENCY</span>` : ''}
                   <span class="badge ${urgencyBadge} me-2">${req.urgency}</span>
                   <span class="badge ${statusBadge}">${req.status}</span>
                   <span class="badge bg-light text-dark border ms-2">${req.category}</span>
@@ -562,12 +565,15 @@
                 <small class="text-muted">${formatDate(req.created_at)}</small>
               </div>
 
-              <h5 class="fw-bold mb-2">${req.title}</h5>
-              <p class="text-muted small mb-3">${req.description}</p>
+              <h5 class="fw-bold mb-2 ${isSOS ? 'text-danger' : ''}">${req.title}</h5>
+              <p class="text-muted small mb-3" style="white-space: pre-line;">${req.description}</p>
 
               <div class="row g-2 p-3 bg-light rounded-2 border mb-3 small">
                 <div class="col-md-4"><strong><i class="bi bi-person text-primary me-1"></i>Requester:</strong> ${req.user_name} (${req.user_role})</div>
-                <div class="col-md-4"><strong><i class="bi bi-telephone text-success me-1"></i>Contact:</strong> ${req.contact_info}</div>
+                <div class="col-md-4">
+                  <strong><i class="bi bi-telephone text-success me-1"></i>Contact:</strong> 
+                  <a href="tel:${req.contact_info}" class="fw-bold text-decoration-none text-danger">📞 ${req.contact_info}</a>
+                </div>
                 <div class="col-md-4"><strong><i class="bi bi-geo-alt text-danger me-1"></i>Address:</strong> ${req.location}</div>
                 
                 <!-- GPS & Smart Geolocation Analysis -->

@@ -277,11 +277,113 @@ Review at: http://localhost:5000/admin.html
   }
 }
 
+/**
+ * Send High Priority SOS Emergency Alert to Admin and Emergency Teams
+ */
+async function sendSOSEmergencyAlert(sosData) {
+  try {
+    const transport = initTransporter();
+    const adminEmail = (process.env.SMTP_USER || 'harishbodkhe8805@gmail.com').trim();
+    const { victimName, phone, emergencyType, location, latitude, longitude, peopleCount, description } = sosData;
+
+    const subject = `🚨 [CRITICAL SOS EMERGENCY] ${emergencyType} Alert - ${victimName}`;
+    const mapLink = (latitude && longitude) ? `https://www.google.com/maps?q=${latitude},${longitude}` : null;
+    const satelliteLink = (latitude && longitude) ? `https://www.google.com/maps/@${latitude},${longitude},18z/data=!3m1!1e3` : null;
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #fef2f2; margin: 0; padding: 20px; }
+          .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2); border: 2px solid #dc2626; }
+          .header { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: #ffffff; padding: 25px 20px; text-align: center; }
+          .content { padding: 25px; color: #1f2937; line-height: 1.6; }
+          .badge-sos { display: inline-block; padding: 6px 14px; border-radius: 50px; font-weight: bold; font-size: 14px; background-color: #dc2626; color: #ffffff; }
+          .details-box { background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 16px; margin: 20px 0; }
+          .detail-row { display: flex; justify-content: space-between; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #fee2e2; }
+          .detail-label { font-weight: 600; color: #991b1b; }
+          .detail-value { font-weight: 700; color: #111827; }
+          .btn-danger { display: inline-block; background-color: #dc2626; color: #ffffff !important; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 6px; }
+          .btn-maps { display: inline-block; background-color: #2563eb; color: #ffffff !important; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 6px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1 style="margin: 0; font-size: 24px;">🚨 CRITICAL SOS EMERGENCY ALERT</h1>
+            <p style="margin: 6px 0 0; opacity: 0.95; font-size: 14px;">Immediate Rescue & Aid Dispatch Needed</p>
+          </div>
+          <div class="content">
+            <div style="text-align: center; margin-bottom: 15px;">
+              <span class="badge-sos">${emergencyType.toUpperCase()}</span>
+            </div>
+            
+            <p>An emergency SOS signal has been triggered on <strong>Civilink Platform</strong> with live location data.</p>
+            
+            <div class="details-box">
+              <div class="detail-row"><span class="detail-label">Victim Name:</span> <span class="detail-value">${victimName}</span></div>
+              <div class="detail-row"><span class="detail-label">Emergency Phone:</span> <span class="detail-value"><a href="tel:${phone}" style="color: #dc2626; text-decoration: none; font-size: 16px;">📞 ${phone}</a></span></div>
+              <div class="detail-row"><span class="detail-label">Emergency Type:</span> <span class="detail-value">${emergencyType}</span></div>
+              <div class="detail-row"><span class="detail-label">People Affected:</span> <span class="detail-value">${peopleCount}</span></div>
+              <div class="detail-row"><span class="detail-label">Location:</span> <span class="detail-value">${location}</span></div>
+              ${(latitude && longitude) ? `
+                <div class="detail-row"><span class="detail-label">Exact GPS Coordinates:</span> <span class="detail-value" style="color: #2563eb;">📍 ${latitude}, ${longitude}</span></div>
+              ` : ''}
+              <div style="margin-top: 10px;">
+                <span class="detail-label">Situation Details:</span>
+                <p style="margin: 4px 0 0; font-style: italic; color: #374151;">"${description}"</p>
+              </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 25px;">
+              ${mapLink ? `<a href="${mapLink}" class="btn-maps">🗺️ Open Google Maps Location</a>` : ''}
+              ${satelliteLink ? `<a href="${satelliteLink}" class="btn-maps" style="background-color: #059669;">🛰️ Satellite View</a>` : ''}
+              <a href="http://localhost:5000/admin.html" class="btn-danger">🛡️ Open Admin Moderation Panel</a>
+            </div>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const textContent = `
+🚨 CRITICAL SOS EMERGENCY ALERT - Civilink
+Immediate Rescue & Aid Required!
+
+- Emergency Type: ${emergencyType}
+- Victim: ${victimName}
+- Phone: ${phone}
+- People Affected: ${peopleCount}
+- Location: ${location}
+${mapLink ? `- GPS Coordinates: ${latitude}, ${longitude}\n- Google Maps: ${mapLink}\n` : ''}
+- Situation: ${description}
+
+Review in Admin Console: http://localhost:5000/admin.html
+    `;
+
+    const info = await transport.sendMail({
+      from: getSenderEmail(),
+      to: adminEmail,
+      subject: subject,
+      text: textContent,
+      html: htmlContent
+    });
+
+    console.log(`[Email Service] 🚨 SOS EMERGENCY ALERT SENT TO ADMIN [${adminEmail}]! ID: ${info.messageId}`);
+    return { success: true, messageId: info.messageId };
+  } catch (err) {
+    console.error('[Email Service Error - SOS Alert]', err.message);
+    return { success: false, error: err.message };
+  }
+}
+
 // Test & initialize transporter on load
 initTransporter();
 
 module.exports = {
   sendRequestStatusNotification,
   sendNewRequestAdminAlert,
+  sendSOSEmergencyAlert,
   initTransporter
 };

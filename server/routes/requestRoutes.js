@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { getPool, getMemoryStore, isFallback } = require('../config/db');
 const { verifyToken, optionalAuth } = require('../middleware/authMiddleware');
-const { sendNewRequestAdminAlert } = require('../services/emailService');
+const { sendNewRequestAdminAlert, sendSOSEmergencyAlert } = require('../services/emailService');
 
 // 1. Get all approved community requests (or all if admin)
 router.get('/', optionalAuth, async (req, res) => {
@@ -204,7 +204,86 @@ router.post('/', verifyToken, async (req, res) => {
   }
 });
 
-// 4. Delete request (Owner or Admin)
+// 4. Instant SOS Emergency Dispatch (Works for both logged in users and anonymous victims)
+router.post('/sos', optionalAuth, async (req, res) => {
+  try {
+    const { name, phone, emergency_type, location, latitude, longitude, description, people_count } = req.body;
+
+    if (!phone || !emergency_type) {
+      return res.status(400).json({ success: false, error: 'Phone number and emergency type are mandatory for SOS dispatch.' });
+    }
+
+    const victimName = req.user ? req.user.name : (name && name.trim() ? name.trim() : 'Emergency Victim');
+    const victimEmail = req.user ? req.user.email : 'emergency-alert@civilink.org';
+    const userId = req.user ? req.user.id : 1; // Default to admin / system owner if guest
+
+    const lat = (latitude !== undefined && latitude !== null && latitude !== '') ? parseFloat(latitude) : null;
+    const lng = (longitude !== undefined && longitude !== null && longitude !== '') ? parseFloat(longitude) : null;
+
+    const title = `🚨 [SOS EMERGENCY] ${emergency_type} - ${victimName}`;
+    const desc = `[EMERGENCY SOS BROADCAST]\nEmergency Type: ${emergency_type}\nVictim Name: ${victimName}\nPhone: ${phone}\nEstimated People Affected: ${people_count || '1+'}\nDetails: ${description || 'Immediate emergency rescue / aid required.'}`;
+    const category = 'SOS Emergency';
+    const urgency = 'CRITICAL';
+    const loc = location && location.trim() ? location.trim() : (lat && lng ? `GPS: ${lat.toFixed(5)}, ${lng.toFixed(5)}` : 'Live Emergency Location');
+
+    let requestId = null;
+
+    if (!isFallback()) {
+      const pool = getPool();
+      const [result] = await pool.query(
+        `INSERT INTO help_requests (title, description, category, urgency, contact_info, location, latitude, longitude, user_id, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING')`,
+        [title, desc, category, urgency, phone.trim(), loc, lat, lng, userId]
+      );
+      requestId = result.insertId;
+    } else {
+      const memory = getMemoryStore();
+      const newReq = {
+        id: memory.nextIds.requests++,
+        title,
+        description: desc,
+        category,
+        urgency,
+        contact_info: phone.trim(),
+        location: loc,
+        latitude: lat,
+        longitude: lng,
+        user_id: userId,
+        user_name: victimName,
+        user_email: victimEmail,
+        user_role: 'USER',
+        status: 'PENDING',
+        admin_notes: '🚨 IMMEDIATE SOS DISPATCH SIGNAL RECEIVED',
+        created_at: new Date()
+      };
+      memory.requests.push(newReq);
+      requestId = newReq.id;
+    }
+
+    // Trigger High Priority Emergency Alert Email
+    sendSOSEmergencyAlert({
+      victimName,
+      phone: phone.trim(),
+      emergencyType: emergency_type,
+      location: loc,
+      latitude: lat,
+      longitude: lng,
+      peopleCount: people_count || '1+',
+      description: description || 'Immediate assistance required'
+    }).catch(err => console.error('[SOS Alert Error]', err));
+
+    return res.status(201).json({
+      success: true,
+      message: '🚨 SOS Alert Dispatched! Emergency team & administrators have been notified with your exact GPS location.',
+      requestId
+    });
+  } catch (err) {
+    console.error('Error dispatching SOS:', err);
+    res.status(500).json({ success: false, error: 'Failed to dispatch SOS alert.' });
+  }
+});
+
+// 5. Delete request (Owner or Admin)
 router.delete('/:id', verifyToken, async (req, res) => {
   try {
     const requestId = parseInt(req.params.id, 10);
